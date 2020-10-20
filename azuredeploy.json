@@ -75,7 +75,7 @@
         },
         "virtualMachineName": {
             "type": "string",
-            "defaultValue":"[concat(parameters('customerID'),'-AD-VM')]",
+            "defaultValue":"AZDC01",
             "metadata": {
                 "description": "Virtual machine name."
             }
@@ -89,14 +89,14 @@
         },
         "virtualNetworkName": {
             "type": "string",
-            "defaultValue": "[concat(parameters('customerID'),'AD-VNET')]",
+            "defaultValue": "[concat(parameters('customerID'),'-AD-VNET')]",
             "metadata": {
                 "description": "The name of the virtualNetwork."
             }
         },
         "subnetName": {
             "type": "string",
-            "defaultValue": "[concat(parameters('customerID'),'AD-SUBNET')]",
+            "defaultValue": "[concat(parameters('customerID'),'-AD-SUBNET')]",
             "metadata": {
                 "description": "The name of the subnet."
             }
