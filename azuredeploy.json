@@ -4,14 +4,14 @@
     "parameters": {
          "customerID": {
             "type": "string",
-            "defaultValue": "ASPIRECUSTOMERTENANT",
+            "defaultValue": "aspirecustomertenant",
             "metadata": {
                 "description": "Customer ID - Use CRM Account Number e.g ASPIRE-TELECOMS"
             }
         },
         "contractID": {
             "type": "string",
-            "defaultValue": "ASPIRECUSTOMERCONTRACT",
+            "defaultValue": "aspirecustomercontract",
             "metadata": {
                 "description": "Contract ID - Use CRM Contract Number e.g 2016/24555"
             }
@@ -38,7 +38,7 @@
         },
         "dnsPrefix": {
             "type": "string",
-            "defaultValue": "[concat(parameters('customerID'))'-ad']",
+            "defaultValue": "[concat(parameters('customerID'),'-ad')]",
             "metadata": {
                 "description": "The DNS prefix for the public IP address used by the Load Balancer"
             }
