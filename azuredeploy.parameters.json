@@ -6,7 +6,7 @@
       "value": "GEN-UNIQUE"
     },
     "adminPassword": {
-      "reference": "GEN-KEYVAULT-PASSWORD-REFERENCE"
+      "value": "GEN-PASSWORD"
     },
     "domainName": {
       "value": "corp.mydomain.com"

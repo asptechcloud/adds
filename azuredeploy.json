@@ -2,8 +2,24 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+         "customerID": {
+            "type": "string",
+            "defaultValue": "ASPIRECUSTOMERTENANT",
+            "metadata": {
+                "description": "Customer ID - Use CRM Account Number e.g ASPIRE-TELECOMS"
+            }
+        },
+        "contractID": {
+            "type": "string",
+            "defaultValue": "ASPIRECUSTOMERCONTRACT",
+            "metadata": {
+                "description": "Contract ID - Use CRM Contract Number e.g 2016/24555"
+            }
+        },
+        
         "adminUsername": {
             "type": "string",
+            "defaultValue": "aspireadmin",
             "metadata": {
                 "description": "The name of the administrator account of the new VM and domain"
             }
@@ -17,21 +33,23 @@
         "domainName": {
             "type": "string",
             "metadata": {
-                "description": "The FQDN of the Active Directory Domain to be created"
+                "description": "The FQDN of the Active Directory Domain to be created. Please don't use .local, if unsure create a sub-domain e.g corp.mydomain.com"
             }
         },
         "dnsPrefix": {
             "type": "string",
-            "defaultValue": "[concat('ad-', uniqueString(resourceGroup().id))]",
+            "defaultValue": "ADDS",
             "metadata": {
                 "description": "The DNS prefix for the public IP address used by the Load Balancer"
             }
         },
+
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_D2s_v3",
+            "defaultValue": "Standard_B2ms",
+            "allowedValues": [ "Standard_B2ms", "Standard_B4ms", "Standard_B8ms"  ], 
             "metadata": {
-                "description": "Size of the VM for the controller"
+                "description": "Size of the VM for the domain controller"
             }
         },
         "_artifactsLocation": {
@@ -57,55 +75,62 @@
         },
         "virtualMachineName": {
             "type": "string",
-            "defaultValue": "ad-vm",
+            "defaultValue":"[concat(parameters('customerID'),'-AD-VM')]",
             "metadata": {
                 "description": "Virtual machine name."
             }
         },
         "virtualNetworkAddressRange": {
             "type": "string",
-            "defaultValue": "10.0.0.0/16",
+            "defaultValue": "10.200.0.0/16",
             "metadata": {
                 "description": "Virtual network address range."
             }
         },
         "virtualNetworkName": {
             "type": "string",
-            "defaultValue": "ad-vnet",
+            "defaultValue": "[concat(parameters('customerID'),'AD-VNET')]",
             "metadata": {
                 "description": "The name of the virtualNetwork."
             }
         },
         "subnetName": {
             "type": "string",
-            "defaultValue": "ad-vnet-subnet",
+            "defaultValue": "[concat(parameters('customerID'),'AD-SUBNET')]",
             "metadata": {
                 "description": "The name of the subnet."
             }
         },
         "privateIPAddress": {
             "type": "string",
-            "defaultValue": "10.0.0.4",
+            "defaultValue": "10.200.0.4",
             "metadata": {
                 "description": "Private IP address."
             }
         },
         "subnetRange": {
             "type": "string",
-            "defaultValue": "10.0.0.0/24",
+            "defaultValue": "10.200.0.0/24",
             "metadata": {
                 "description": "Subnet IP range."
+            }
+        },
+        "resourceTags": {
+            "type": "object",
+            "defaultValue": {
+                "Customer": "[parameters('contractID')]",
+                "Contract": "[parameters('contractID')]"
             }
         }
     },
     "variables": {
-        "loadBalancerFrontEndIPName": "ad-LBFE",
-        "backendAddressPoolName": "ad-LBBE",
-        "inboundNatRulesName": "ad-RDP",
-        "networkInterfaceName": "ad-nic",
-        "publicIPAddressName": "ad-ip",
-        "availabilitySetName": "ad-AvailabiltySet",
-        "loadBalancerName": "ad-LoadBalancer"
+        "loadBalancerFrontEndIPName":"[concat(parameters('customerID'), '-AD-LBFE') ]",
+        "backendAddressPoolName": "[concat(parameters('customerID'), '-AD-LBBE') ]",
+        "inboundNatRulesName": "[concat(parameters('customerID'), '-IN-RDP') ]",
+        "networkInterfaceName": "[concat(parameters('customerID'), '-AD-NIC') ]",
+        "publicIPAddressName": "[concat(parameters('customerID'), '-AD-PUB') ]",
+        "availabilitySetName": "[concat(parameters('customerID'), '-AD-AVS') ]",
+        "loadBalancerName": "[concat(parameters('customerID'), '-AD-NLB') ]"
     },
     "resources": [
         {
@@ -113,6 +138,7 @@
             "apiVersion": "2020-06-01",
             "name": "[variables('publicIPAddressName')]",
             "location": "[parameters('location')]",
+            "tags": "[parameters('resourceTags')]",
             "properties": {
                 "publicIPAllocationMethod": "Static",
                 "dnsSettings": {
@@ -124,6 +150,7 @@
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2020-06-01",
             "location": "[parameters('location')]",
+            "tags": "[parameters('resourceTags')]",
             "name": "[variables('availabilitySetName')]",
             "properties": {
                 "PlatformUpdateDomainCount": 20,
@@ -167,6 +194,7 @@
             "apiVersion": "2020-06-01",
             "name": "[variables('loadBalancerName')]",
             "location": "[parameters('location')]",
+            "tags": "[parameters('resourceTags')]",
             "dependsOn": [
                 "[variables('publicIPAddressName')]"
             ],
@@ -207,6 +235,7 @@
             "apiVersion": "2020-06-01",
             "name": "[variables('networkInterfaceName')]",
             "location": "[parameters('location')]",
+            "tags": "[parameters('resourceTags')]",
             "dependsOn": [
                 "VNet",
                 "[variables('loadBalancerName')]"
@@ -241,6 +270,7 @@
             "apiVersion": "2020-06-01",
             "name": "[parameters('virtualMachineName')]",
             "location": "[parameters('location')]",
+            "tags": "[parameters('resourceTags')]",
             "dependsOn": [
                 "[variables('networkInterfaceName')]",
                 "[variables('availabilitySetName')]",
@@ -262,7 +292,7 @@
                     "imageReference": {
                         "publisher": "MicrosoftWindowsServer",
                         "offer": "WindowsServer",
-                        "sku": "2016-Datacenter",
+                        "sku": "2019-Datacenter",
                         "version": "latest"
                     },
                     "osDisk": {
@@ -300,6 +330,7 @@
                     "apiVersion": "2020-06-01",
                     "name": "CreateADForest",
                     "location": "[parameters('location')]",
+                    "tags": "[parameters('resourceTags')]",
                     "dependsOn": [
                         "[parameters('virtualMachineName')]"
                     ],
