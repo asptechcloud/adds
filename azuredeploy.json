@@ -4,14 +4,13 @@
     "parameters": {
          "customerID": {
             "type": "string",
-            "defaultValue": "aspirecustomertenant",
             "metadata": {
                 "description": "Customer ID - Use CRM Account Number e.g ASPIRE-TELECOMS"
             }
         },
         "contractID": {
             "type": "string",
-            "defaultValue": "aspirecustomercontract",
+        
             "metadata": {
                 "description": "Contract ID - Use CRM Contract Number e.g 2016/24555"
             }
