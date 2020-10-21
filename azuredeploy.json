@@ -5,7 +5,7 @@
          "customerID": {
             "type": "string",
             "metadata": {
-                "description": "Customer ID - Use CRM Account Number e.g ASPIRE-TELECOMS"
+                "description": "Customer ID - Use CRM Account Number but use lowercase, e.g aspire-telecoms"
             }
         },
         "contractID": {
@@ -117,7 +117,7 @@
         "resourceTags": {
             "type": "object",
             "defaultValue": {
-                "Customer": "[parameters('contractID')]",
+                "Customer": "[parameters('customerID')]",
                 "Contract": "[parameters('contractID')]"
             }
         }
